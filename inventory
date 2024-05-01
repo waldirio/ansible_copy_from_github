@@ -1,0 +1,4 @@
+
+localhost ansible_connection=local
+
+remote_server ansible_host=REMOTE_SERVER_FQDN_HERE

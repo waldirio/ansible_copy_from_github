@@ -1,0 +1,41 @@
+- name: Main play
+  hosts: localhost
+  gather_facts: false
+
+  # The variables to set the code we would like to download
+  vars:
+    github_links:
+      - url: https://raw.githubusercontent.com/Qikfix/rpmdb_check/main/rpmdb_check.sh
+        filename: rpmdb_check.sh
+      - url: https://raw.githubusercontent.com/Qikfix/sos_analyze/master/sos_analyze.sh
+        filename: sos_analyze.sh
+      - url: https://raw.githubusercontent.com/C-RH-C/oc_analyze/master/oc_analyze.sh
+        filename: oc_analyze.sh
+      - url: https://raw.githubusercontent.com/C-RH-C/ACM-MCE-must-gather/main/acm_create-must-gather.sh
+        filename: acm_create-must-gather.sh
+      - url: https://raw.githubusercontent.com/oamg/snippets/master/scripts/leappinspector/leapp-inspector
+        filename: leapp-inspector
+
+
+  tasks:
+
+    # Setting the local variable
+    - name: Setting the remote directory variable
+      ansible.builtin.set_fact:
+        remote_dir: "/tmp/script/"
+
+    # Checking in the remote server if the directory is around, if not, it will create it
+    # Note. the remote_server was set in inventory, or you can just add 
+    # the FQDN of the remote server in front of "delegate_to"
+    - name: Ensure the directory {{ remote_dir }} is present remotely
+      delegate_to: remote_server
+      ansible.builtin.file:
+        path: "{{ remote_dir }}"
+        state: directory
+        mode: '0755'
+
+    # Passing through all the dic from var "github_links" and calling 
+    # the tasks_for_all.yml for each of them
+    - name: Passing through all the urls
+      include_tasks: tasks_for_all.yml
+      loop: "{{ github_links }}"
