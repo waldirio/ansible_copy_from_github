@@ -1,0 +1,21 @@
+# If you would like to see the value of each item from the loop
+- name: show
+  ansible.builtin.debug:
+    msg: "{{ item }}"
+
+# Retrieving the url from github and storing it to "raw_code" variable
+- name: Retrieve the code from GitHub - {{ item['url'] }}
+  register: raw_code
+  ansible.builtin.uri:
+    url: "{{ item['url'] }}"
+    return_content: true
+    validate_certs: false
+
+# Saving the content of the variable in a file. Note that this content
+# will be saved in a remote server "delegate_to"
+- name: Save the file - {{ item['filename'] }}
+  delegate_to: remote_server
+  ansible.builtin.copy:
+    content: "{{ raw_code['content'] }}"
+    dest: "/tmp/script/{{ item['filename'] }}"
+    mode: '0755'
